@@ -12,6 +12,7 @@ void main() {
     ),
   );
 }
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -79,7 +80,7 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.primary,
-        
+
           background: AppColors.backgroundDark,
           surface: AppColors.surfaceDark,
           onPrimary: AppColors.onPrimaryDark,
