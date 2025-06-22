@@ -3,12 +3,18 @@ import 'package:provider/provider.dart';
 import 'package:restaurant_app/config/app_routes.dart';
 import 'package:restaurant_app/config/constants.dart';
 import 'package:restaurant_app/providers/ThemeProvider.dart';
+import 'package:device_preview/device_preview.dart  ';
+import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const MyApp(),
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder:
+          (context) => ChangeNotifierProvider(
+            create: (_) => ThemeProvider(),
+            child: const MyApp(),
+          ),
     ),
   );
 }
