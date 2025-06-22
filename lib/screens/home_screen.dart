@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+// import 'package:restaurant_app/config/app_routes.dart';
 import 'package:restaurant_app/config/constants.dart';
 import 'package:restaurant_app/providers/ThemeProvider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FoodItem {
   final String name;
@@ -62,6 +64,18 @@ class HomeScreen extends StatelessWidget {
       ),
     ];
 
+    Future<void> logout(BuildContext context) async {
+      await Supabase.instance.client.auth.signOut();
+
+      // Optionally redirect to login screen
+      if (context.mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      }
+    }
+
+    final user = Supabase.instance.client.auth.currentUser;
+    final String name = user?.userMetadata?['full_name'] ?? 'Invité';
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -73,7 +87,7 @@ class HomeScreen extends StatelessWidget {
               radius: 18,
             ),
             const Gap(10),
-            const Text('Hi Achraf', style: TextStyle(fontSize: 18)),
+            Text(' $name  ', style: TextStyle(fontSize: 18)),
           ],
         ),
         actions: [
@@ -87,6 +101,11 @@ class HomeScreen extends StatelessWidget {
             tooltip: 'Toggle Theme',
           ),
           const SizedBox(width: 12),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded),
+            onPressed: () => logout(context),
+            tooltip: 'Logout',
+          ),
         ],
       ),
       body: SingleChildScrollView(

@@ -59,6 +59,7 @@ dev_dependencies:
   persistent_bottom_nav_bar: ^6.2.1
   provider: ^6.1.5
   device_preview: ^1.2.0
+  supabase_flutter: ^2.9.1
 
 
 # For information on the generic Dart part of this file, see the

@@ -5,8 +5,18 @@ import 'package:restaurant_app/config/constants.dart';
 import 'package:restaurant_app/providers/ThemeProvider.dart';
 import 'package:device_preview/device_preview.dart  ';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // <-- Add this
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url:
+        'https://gtksaqtldpspzggljibf.supabase.co', // <-- paste your Project URL
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0a3NhcXRsZHBzcHpnZ2xqaWJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2Mjk3NDIsImV4cCI6MjA2NjIwNTc0Mn0.TtqcxdCQSl74MvqPCnM4vx2Kt9fvqzHlhE03oFK0T-Y', // <-- paste your anon public key
+  );
+
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
@@ -28,6 +38,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.system;
+  final supabase = Supabase.instance.client;
 
   void toggleTheme() {
     setState(() {
