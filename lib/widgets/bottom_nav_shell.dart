@@ -5,10 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 class BottomNavShell extends StatelessWidget {
   final Widget child;
 
-  const BottomNavShell({
-    super.key,
-    required this.child,
-  });
+  const BottomNavShell({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +28,19 @@ class BottomNavShell extends StatelessWidget {
           currentIndex: _getCurrentIndex(context),
           onTap: (index) => _onItemTapped(context, index),
           selectedItemColor: Theme.of(context).colorScheme.primary,
-          unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+          unselectedItemColor: Theme.of(
+            context,
+          ).colorScheme.onSurface.withOpacity(0.5),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 12,
+          ),
           selectedIconTheme: const IconThemeData(size: 28),
           unselectedIconTheme: const IconThemeData(size: 24),
           showUnselectedLabels: true,
@@ -53,10 +58,10 @@ class BottomNavShell extends StatelessWidget {
               tooltip: 'Navigate to Menu',
             ),
             BottomNavigationBarItem(
-              icon: Icon(LucideIcons.shoppingBag),
-              activeIcon: Icon(LucideIcons.shoppingBag),
-              label: 'Orders',
-              tooltip: 'Navigate to Orders',
+              icon: Icon(LucideIcons.heart),
+              activeIcon: Icon(LucideIcons.heart),
+              label: 'Favoris',
+              tooltip: 'Navigate to Favoris',
             ),
             BottomNavigationBarItem(
               icon: Icon(LucideIcons.user),
@@ -77,7 +82,7 @@ class BottomNavShell extends StatelessWidget {
         return 0;
       case '/menu':
         return 1;
-      case '/orders':
+      case '/favoris':
         return 2;
       case '/profile':
         return 3;
@@ -95,7 +100,7 @@ class BottomNavShell extends StatelessWidget {
         context.go('/menu');
         break;
       case 2:
-        context.go('/orders');
+        context.go('/favoris');
         break;
       case 3:
         context.go('/profile');

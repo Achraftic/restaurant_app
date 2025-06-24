@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restaurant_app/screens/favoris_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../screens/auth/signin_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/menu_screen.dart';
-import '../screens/orders_screen.dart';
+
 import '../screens/profile_screen.dart';
 import '../screens/welcome_screen.dart';
 import '../widgets/bottom_nav_shell.dart';
@@ -66,9 +67,9 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const MenuScreen(),
         ),
         GoRoute(
-          path: '/orders',
-          name: 'orders',
-          builder: (context, state) => const OrdersScreen(),
+          path: '/favoris',
+          name: 'favoris',
+          builder: (context, state) => const FavorisScreen(),
         ),
         GoRoute(
           path: '/profile',

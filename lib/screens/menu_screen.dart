@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:restaurant_app/config/constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -11,7 +12,6 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> {
   String selectedCategory = 'Plats principaux';
-
   final List<String> categories = [
     'Entrées',
     'Plats principaux',
@@ -19,78 +19,102 @@ class _MenuScreenState extends State<MenuScreen> {
     'Boissons',
   ];
 
-  final List<Map<String, dynamic>> allDishes = [
-    {
-      'name': 'Harira',
-      'description':
-          'Soupe marocaine traditionnelle aux tomates et pois chiches.',
-      'price': 7.50,
-      'category': 'Entrées',
-      'image':
-          'https://images.unsplash.com/photo-1567982047351-76b6f93e38ee?w=600',
-      'likes': 60,
-      'dislikes': 2,
-      'comments': ['Parfait pour commencer le repas.'],
-    },
-    {
-      'name': 'Briouates',
-      'description': 'Feuilletés farcis au fromage ou à la viande.',
-      'price': 6.99,
-      'category': 'Entrées',
-      'image':
-          'https://images.unsplash.com/photo-1492470026006-0e12a33eb7fb?w=600',
-      'likes': 45,
-      'dislikes': 1,
-      'comments': ['Croustillants et délicieux.'],
-    },
-    {
-      'name': 'Tajine de poulet',
-      'description': 'Poulet mijoté avec citron confit et olives.',
-      'price': 14.99,
-      'category': 'Plats principaux',
-      'image':
-          'https://images.unsplash.com/photo-1643995529778-7f77c082e6a4?w=600',
-      'likes': 100,
-      'dislikes': 3,
-      'comments': ['Un classique marocain.'],
-    },
-    {
-      'name': 'Couscous royal',
-      'description': 'Couscous aux légumes, merguez et viande.',
-      'price': 16.50,
-      'category': 'Plats principaux',
-      'image':
-          'https://images.unsplash.com/photo-1615535248235-253d93813ca5?w=600',
-      'likes': 150,
-      'dislikes': 4,
-      'comments': ['Copieux et savoureux.'],
-    },
-    {
-      'name': 'Baghrir',
-      'description': 'Crêpes mille trous au miel et beurre.',
-      'price': 5.50,
-      'category': 'Desserts',
-      'image':
-          'https://images.unsplash.com/photo-1641977915875-9b09e2ab7965?w=600',
-      'likes': 35,
-      'dislikes': 1,
-      'comments': ['Un vrai délice !'],
-    },
-    {
-      'name': 'Thé à la menthe',
-      'description': 'Boisson traditionnelle marocaine sucrée.',
-      'price': 2.50,
-      'category': 'Boissons',
-      'image':
-          'https://images.unsplash.com/photo-1643146001923-d37e3d0b07fb?w=600',
-      'likes': 70,
-      'dislikes': 0,
-      'comments': ['Rafraîchissant et sucré.'],
-    },
-  ];
+  List<Map<String, dynamic>> allDishes = [];
+  bool _loading = true;
+
+  Set<String> favoriteDishIds = {}; // Store favorite dish IDs for current user
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _loading = true);
+
+    // Fetch dishes
+    final dishesResponse = await Supabase.instance.client
+        .from('dishes')
+        .select('*');
+    // Fetch favorites for current user
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    List<dynamic> favResponse = [];
+    if (userId != null) {
+      favResponse = await Supabase.instance.client
+          .from('favoris')
+          .select('dish_id')
+          .eq('user_id', userId);
+    }
+
+    if (mounted) {
+      setState(() {
+        allDishes = List<Map<String, dynamic>>.from(dishesResponse);
+        favoriteDishIds =
+            favResponse.map((e) => e['dish_id'] as String).toSet();
+        _loading = false;
+      });
+    }
+  }
+
+  // Add dish to favorites
+  Future<void> addToFavoris(String dishId) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) {
+      throw Exception('User not authenticated');
+    }
+
+    final response = await Supabase.instance.client.from('favoris').insert({
+      'user_id': userId,
+      'dish_id': dishId,
+    });
+    // <--- Important!
+
+    if (response.error != null) {
+      throw Exception('Failed to add favorite: ${response.error!.message}');
+    }
+  }
+
+  // Remove dish from favorites
+  Future<void> removeFromFavoris(String dishId) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    final response = await Supabase.instance.client
+        .from('favoris')
+        .delete()
+        .match({'user_id': userId, 'dish_id': dishId});
+
+    if (response.error != null) {
+      throw Exception('Failed to remove favorite: ${response.error!.message}');
+    }
+  }
+
+  // Toggle favorite and update UI + backend
+  void toggleFavorite(String dishId) async {
+    final currentlyFav = favoriteDishIds.contains(dishId);
+
+    setState(() {
+      if (currentlyFav) {
+        favoriteDishIds.remove(dishId);
+      } else {
+        favoriteDishIds.add(dishId);
+      }
+    });
+
+    if (currentlyFav) {
+      await removeFromFavoris(dishId);
+    } else {
+      await addToFavoris(dishId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final filteredDishes =
         allDishes
             .where((dish) => dish['category'] == selectedCategory)
@@ -103,13 +127,20 @@ class _MenuScreenState extends State<MenuScreen> {
           const SizedBox(height: 12),
           _buildCategoryChips(context),
           const SizedBox(height: 12),
+          TextButton(onPressed: _loadData, child: const Text("Rafraîchir")),
+          const SizedBox(height: 12),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: filteredDishes.length,
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               itemBuilder: (context, index) {
-                return DishCard(dish: filteredDishes[index]);
+                final dish = filteredDishes[index];
+                final isFav = favoriteDishIds.contains(dish['id'].toString());
+                return DishCard(
+                  dish: dish,
+                  isFavorite: isFav,
+                  onFavoriteToggle: () => toggleFavorite(dish['id'].toString()),
+                );
               },
             ),
           ),
@@ -138,7 +169,7 @@ class _MenuScreenState extends State<MenuScreen> {
               onSelected: (_) => setState(() => selectedCategory = category),
               selectedColor: AppColors.primary,
               backgroundColor: theme.colorScheme.secondary.withOpacity(0.6),
-              labelStyle: TextStyle(color: Colors.white),
+              labelStyle: const TextStyle(color: Colors.white),
             ),
           );
         },
@@ -149,8 +180,15 @@ class _MenuScreenState extends State<MenuScreen> {
 
 class DishCard extends StatefulWidget {
   final Map<String, dynamic> dish;
+  final bool isFavorite;
+  final VoidCallback onFavoriteToggle;
 
-  const DishCard({super.key, required this.dish});
+  const DishCard({
+    super.key,
+    required this.dish,
+    required this.isFavorite,
+    required this.onFavoriteToggle,
+  });
 
   @override
   State<DishCard> createState() => _DishCardState();
@@ -170,8 +208,7 @@ class _DishCardState extends State<DishCard> {
     final dish = widget.dish;
     final theme = Theme.of(context);
 
-    // Ensure 'isFavorite' field exists
-    dish.putIfAbsent('isFavorite', () => false);
+    dish.putIfAbsent('comments', () => []);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -181,55 +218,41 @@ class _DishCardState extends State<DishCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image with Favorite button on top-left
           Stack(
             children: [
               AspectRatio(
                 aspectRatio: 4 / 3,
                 child: Image.network(
-                  dish['image'],
+                  dish['image'] ?? '',
                   fit: BoxFit.cover,
                   errorBuilder:
                       (_, __, ___) =>
                           const Center(child: Icon(Icons.image_not_supported)),
                 ),
               ),
-
-              // Favorite button
               Positioned(
                 top: 8,
                 right: 10,
                 child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      dish['isFavorite'] = !(dish['isFavorite'] ?? false);
-                    });
-                  },
+                  onTap: widget.onFavoriteToggle,
                   child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: Colors.black38,
                     child: Icon(
-                      dish['isFavorite'] == true
+                      widget.isFavorite
                           ? Icons.favorite
                           : Icons.favorite_border,
-                      color:
-                          dish['isFavorite'] == true
-                              ? Colors.red
-                              : Colors.white,
-                      size: 35,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
             ],
           ),
-
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Name + Price
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -239,7 +262,6 @@ class _DishCardState extends State<DishCard> {
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Text(
@@ -252,56 +274,40 @@ class _DishCardState extends State<DishCard> {
                   ],
                 ),
                 const SizedBox(height: 4),
-
-                // Description
                 Text(
                   dish['description'],
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall,
                 ),
-
                 const SizedBox(height: 8),
-
-                // Likes / Dislikes
                 Row(
                   children: [
-                    Icon(LucideIcons.thumbsUp, size: 24, color: Colors.green),
+                    Icon(LucideIcons.thumbsUp, size: 20, color: Colors.green),
                     const SizedBox(width: 4),
-                    Text(
-                      '${dish['likes']}',
-                      style: theme.textTheme.titleMedium,
-                    ),
+                    Text('${dish['likes']}'),
                     const SizedBox(width: 12),
-                    Icon(LucideIcons.thumbsDown, size: 24, color: Colors.red),
+                    Icon(LucideIcons.thumbsDown, size: 20, color: Colors.red),
                     const SizedBox(width: 4),
-                    Text(
-                      '${dish['dislikes']}',
-                      style: theme.textTheme.titleMedium,
-                    ),
+                    Text('${dish['dislikes']}'),
                   ],
                 ),
-
                 const SizedBox(height: 8),
-
-                // Recent Comments (up to 2)
                 ...List.generate(
                   dish['comments'].length.clamp(0, 2),
                   (i) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
                           LucideIcons.messageCircle,
-                          size: 24,
+                          size: 18,
                           color: theme.colorScheme.primary,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             dish['comments'][i],
-                            style: theme.textTheme.titleSmall,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -309,13 +315,9 @@ class _DishCardState extends State<DishCard> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 6),
-
-                // Comment Input Field
                 TextField(
                   controller: _commentController,
-                  style: theme.textTheme.bodySmall,
                   decoration: InputDecoration(
                     hintText: 'Ajouter un commentaire...',
                     contentPadding: const EdgeInsets.symmetric(
