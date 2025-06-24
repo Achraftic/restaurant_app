@@ -67,3 +67,46 @@
   //     'comments': ['Rafraîchissant et sucré.'],
   //   },
   // ];
+ import 'package:restaurant_app/screens/home_screen.dart';
+
+final featuredDishes = [
+      FoodItem(
+        name: 'Burger',
+        imageUrl:
+            'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80',
+        price: 5.99,
+      ),
+      FoodItem(
+        name: 'Pizza',
+        imageUrl:
+            'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGl6emF8ZW58MHx8MHx8fDA%3D',
+        price: 7.99,
+      ),
+      FoodItem(
+        name: 'Pasta',
+        imageUrl:
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+        price: 6.49,
+      ),
+    ];
+
+    final todaysDeals = [
+      FoodItem(
+        name: 'Grilled Salmon',
+        imageUrl:
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+        price: 12.99,
+      ),
+      FoodItem(
+        name: 'Steak',
+        imageUrl:
+            'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fEZPT0R8ZW58MHx8MHx8fDA%3D',
+        price: 18.99,
+      ),
+      FoodItem(
+        name: 'Caesar Salad',
+        imageUrl:
+            'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
+        price: 7.49,
+      ),
+    ];

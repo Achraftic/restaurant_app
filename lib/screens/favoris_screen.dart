@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/widgets/dish_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FavorisScreen extends StatefulWidget {
@@ -9,25 +10,9 @@ class FavorisScreen extends StatefulWidget {
 }
 
 class _FavorisScreenState extends State<FavorisScreen> {
-  List<dynamic> favoris = [];
+  List<Map<String, dynamic>> favoris = [];
+  Set<String> favoriteDishIds = {};
   bool loading = true;
-
-  Future<void> _fetchFavoris() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    final response = await Supabase.instance.client
-        .from('favoris')
-        .select('id, dish_id, dishes(name, image, price)')
-        .eq('user_id', userId as Object);
-
-    print('Favoris: ${response}');
-
-    if (mounted) {
-      setState(() {
-        favoris = response;
-        loading = false;
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -35,6 +20,56 @@ class _FavorisScreenState extends State<FavorisScreen> {
     _fetchFavoris();
   }
 
+  Future<void> _fetchFavoris() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    final response = await Supabase.instance.client
+        .from('favoris')
+        .select(
+          'id, dish_id, dishes(id, name, image, price, description, likes, dislikes)',
+        )
+        .eq('user_id', userId);
+
+    final dishList = List<Map<String, dynamic>>.from(response);
+
+    if (mounted) {
+      setState(() {
+        favoris = dishList;
+        favoriteDishIds =
+            dishList.map((fav) => fav['dish_id'].toString()).toSet();
+        loading = false;
+      });
+    }
+  }
+
+  Future<void> removeFromFavoris(String dishId) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    await Supabase.instance.client.from('favoris').delete().match({
+      'user_id': userId,
+      'dish_id': dishId,
+    });
+  }
+
+  void toggleFavorite(String dishId) async {
+    final isFav = favoriteDishIds.contains(dishId);
+
+    setState(() {
+      if (isFav) {
+        favoriteDishIds.remove(dishId);
+        favoris.removeWhere((fav) => fav['dish_id'] == dishId);
+      } else {
+        favoriteDishIds.add(dishId);
+        // Optional: You can re-fetch to refresh UI
+      }
+    });
+
+    await removeFromFavoris(dishId);
+  }
+
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,21 +77,20 @@ class _FavorisScreenState extends State<FavorisScreen> {
       body:
           loading
               ? const Center(child: CircularProgressIndicator())
+              : favoris.isEmpty
+              ? const Center(child: Text("Aucun favori trouvé."))
               : ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: favoris.length,
                 itemBuilder: (context, index) {
                   final fav = favoris[index];
                   final dish = fav['dishes'];
-                  // final user = fav['users'];
-                  return ListTile(
-                    leading: Image.network(
-                      dish['image'],
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(dish['name']),
-                    // subtitle: Text('${dish['price']} € - ${user['email']}'),
+                  final dishId = dish['id'].toString();
+
+                  return DishCard(
+                    dish: dish,
+                    isFavorite: favoriteDishIds.contains(dishId),
+                    onFavoriteToggle: () => toggleFavorite(dishId),
                   );
                 },
               ),
