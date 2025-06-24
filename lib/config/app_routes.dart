@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restaurant_app/screens/contact_screen.dart';
 import 'package:restaurant_app/screens/favoris_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -75,6 +76,11 @@ final GoRouter appRouter = GoRouter(
           path: '/profile',
           name: 'profile',
           builder: (context, state) => const ProfileScreen(),
+        ),
+        GoRoute(
+          path: '/contact',
+          name: 'contact',
+          builder: (context, state) => const ContactScreen(),
         ),
       ],
     ),
