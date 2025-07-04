@@ -30,9 +30,7 @@ class _SignUpPageState extends State<SignUpPage> {
       final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
-        data: {
-          'full_name': full_name, 
-        },
+        data: {'full_name': full_name},
       );
 
       if (response.user != null) {
@@ -61,12 +59,13 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset("assets/images/logo.png", height: 250),
-              const SizedBox(height: 16),
+              Image.asset("assets/images/logo.png", height: 300),
+
               Text(
                 "Créer un compte",
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
+                  fontSize: 40,
                 ),
               ),
               const SizedBox(height: 24),
@@ -75,7 +74,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: _emailController,
                 decoration: const InputDecoration(
                   labelText: 'Email',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
                   prefixIcon: Icon(Icons.email),
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -85,7 +86,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: _fullNameController,
                 decoration: const InputDecoration(
                   labelText: 'name',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
                   prefixIcon: Icon(Icons.person),
                 ),
                 keyboardType: TextInputType.name,
@@ -96,7 +99,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: _passwordController,
                 decoration: const InputDecoration(
                   labelText: 'Mot de passe',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
                   prefixIcon: Icon(Icons.lock),
                 ),
                 obscureText: true,
@@ -115,6 +120,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
               SizedBox(
                 width: double.infinity,
+                height: 40,
                 child: ElevatedButton(
                   onPressed: _loading ? null : _signUp,
                   style: ElevatedButton.styleFrom(
@@ -130,7 +136,13 @@ class _SignUpPageState extends State<SignUpPage> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                          : const Text("S'inscrire"),
+                          : const Text(
+                            "S'inscrire",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                 ),
               ),
               const SizedBox(height: 12),

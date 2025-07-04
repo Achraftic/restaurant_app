@@ -88,6 +88,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
                   final dishId = dish['id'].toString();
 
                   return DishCard(
+                    
                     dish: dish,
                     isFavorite: favoriteDishIds.contains(dishId),
                     onFavoriteToggle: () => toggleFavorite(dishId),

@@ -71,7 +71,10 @@ class _SignInPageState extends State<SignInPage> {
                 controller: _emailController,
                 decoration: const InputDecoration(
                   labelText: 'Email',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
+
                   prefixIcon: Icon(Icons.email),
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -83,7 +86,9 @@ class _SignInPageState extends State<SignInPage> {
                 controller: _passwordController,
                 decoration: const InputDecoration(
                   labelText: 'Mot de passe',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
                   prefixIcon: Icon(Icons.lock),
                 ),
                 obscureText: true,
@@ -104,6 +109,7 @@ class _SignInPageState extends State<SignInPage> {
               // Login button
               SizedBox(
                 width: double.infinity,
+                height: 40,
                 child: ElevatedButton(
                   onPressed: _loading ? null : _signIn,
                   style: ElevatedButton.styleFrom(
@@ -119,7 +125,13 @@ class _SignInPageState extends State<SignInPage> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                          : const Text("Se connecter"),
+                          : const Text(
+                            "Se connecter",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                 ),
               ),
               const SizedBox(height: 12),

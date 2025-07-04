@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:restaurant_app/widgets/comment_sheet.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DishCard extends StatefulWidget {
@@ -21,15 +22,214 @@ class DishCard extends StatefulWidget {
 class _DishCardState extends State<DishCard> {
   final TextEditingController _commentController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  bool isliked = false;
+  bool isdisliked = false;
+  bool _isUpdating = false; // Add loading state
+
+  Future<void> _handleLike(String dishId, bool isLiked) async {
+    try {
+      await Supabase.instance.client
+          .from('dishes')
+          .update({
+            'likes':
+                isLiked ? widget.dish['likes'] + 1 : widget.dish['likes'] - 1,
+          })
+          .eq('id', dishId);
+    } catch (e) {
+      // Handle the error appropriately
+      print('Error updating like status: $e');
+      rethrow; // Re-throw to handle in setLike()
+    }
+  }
+
+  Future<void> _handleDislike(String dishId, bool isDisliked) async {
+    try {
+      await Supabase.instance.client
+          .from('dishes')
+          .update({
+            'dislikes':
+                isDisliked
+                    ? widget.dish['dislikes'] + 1
+                    : widget.dish['dislikes'] - 1,
+          })
+          .eq('id', dishId);
+    } catch (e) {
+      // Handle the error appropriately
+      print('Error updating dislike status: $e');
+      rethrow; // Re-throw to handle in setDislike()
+    }
+  }
+
+  Future<void> setLike() async {
+    if (_isUpdating) return; // Prevent multiple simultaneous requests
+
+    // Store original state for rollback
+    final originalIsLiked = isliked;
+    final originalIsDisliked = isdisliked;
+    final originalLikes = widget.dish['likes'];
+    final originalDislikes = widget.dish['dislikes'];
+
+    setState(() {
+      _isUpdating = true;
+    });
+
+    // Optimistically update UI first
+    setState(() {
+      if (!isdisliked) {
+        // Simple like/unlike toggle
+        isliked = !isliked;
+        if (isliked) {
+          widget.dish['likes']++;
+        } else {
+          widget.dish['likes']--;
+        }
+      } else {
+        // Switching from dislike to like
+        isliked = true;
+        isdisliked = false;
+        widget.dish['likes']++;
+        widget.dish['dislikes']--;
+      }
+    });
+
+    try {
+      if (originalIsDisliked && !isdisliked) {
+        // If we're switching from dislike to like, update both
+        await Future.wait([
+          _handleLike(widget.dish['id'], isliked),
+          _handleDislike(widget.dish['id'], false),
+        ]);
+      } else {
+        // Just update likes
+        await _handleLike(widget.dish['id'], isliked);
+      }
+    } catch (e) {
+      // Rollback UI changes if database update fails
+      setState(() {
+        isliked = originalIsLiked;
+        isdisliked = originalIsDisliked;
+        widget.dish['likes'] = originalLikes;
+        widget.dish['dislikes'] = originalDislikes;
+      });
+
+      // Show error message to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update like status. Please try again.'),
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isUpdating = false;
+      });
+    }
+  }
+
+  Future<void> setDislike() async {
+    if (_isUpdating) return; // Prevent multiple simultaneous requests
+
+    // Store original state for rollback
+    final originalIsLiked = isliked;
+    final originalIsDisliked = isdisliked;
+    final originalLikes = widget.dish['likes'];
+    final originalDislikes = widget.dish['dislikes'];
+
+    setState(() {
+      _isUpdating = true;
+    });
+
+    // Optimistically update UI first
+    setState(() {
+      if (!isliked) {
+        // Simple dislike/undislike toggle
+        isdisliked = !isdisliked;
+        if (isdisliked) {
+          widget.dish['dislikes']++;
+        } else {
+          widget.dish['dislikes']--;
+        }
+      } else {
+        // Switching from like to dislike
+        isdisliked = true;
+        isliked = false;
+        widget.dish['dislikes']++;
+        widget.dish['likes']--;
+      }
+    });
+
+    try {
+      if (originalIsLiked && !isliked) {
+        // If we're switching from like to dislike, update both
+        await Future.wait([
+          _handleDislike(widget.dish['id'], isdisliked),
+          _handleLike(widget.dish['id'], false),
+        ]);
+      } else {
+        // Just update dislikes
+        await _handleDislike(widget.dish['id'], isdisliked);
+      }
+    } catch (e) {
+      // Rollback UI changes if database update fails
+      setState(() {
+        isliked = originalIsLiked;
+        isdisliked = originalIsDisliked;
+        widget.dish['likes'] = originalLikes;
+        widget.dish['dislikes'] = originalDislikes;
+      });
+
+      // Show error message to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update dislike status. Please try again.'),
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isUpdating = false;
+      });
+    }
+  }
+
+  Future<void> _addComment() async {
+    final text = _commentController.text.trim();
+    if (text.isEmpty) return;
+
+    try {
+      // Add comment to database
+      await Supabase.instance.client.from('comments').insert({
+        'dish_id': widget.dish['id'],
+        'comment': text,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      // Update local state
+      setState(() {
+        widget.dish['comments'].add(text);
+        _commentController.clear();
+      });
+    } catch (e) {
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to add comment. Please try again.'),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-
     _focusNode.addListener(_handleFocusChange);
-
-    // Initialize comments if not present
+    // Initialize comments and ensure dislikes field exists
     widget.dish.putIfAbsent('comments', () => []);
+    widget.dish.putIfAbsent('dislikes', () => 0);
   }
 
   void _handleFocusChange() async {
@@ -62,6 +262,7 @@ class _DishCardState extends State<DishCard> {
   @override
   void dispose() {
     _commentController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -71,6 +272,7 @@ class _DishCardState extends State<DishCard> {
     final theme = Theme.of(context);
 
     dish.putIfAbsent('comments', () => []);
+    dish.putIfAbsent('dislikes', () => 0);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -145,11 +347,33 @@ class _DishCardState extends State<DishCard> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(LucideIcons.thumbsUp, size: 20, color: Colors.green),
+                    GestureDetector(
+                      onTap: _isUpdating ? null : () => setLike(),
+                      child: Opacity(
+                        opacity: _isUpdating ? 0.5 : 1.0,
+                        child: Icon(
+                          isliked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                          size: 20,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Text('${dish['likes']}'),
                     const SizedBox(width: 12),
-                    Icon(LucideIcons.thumbsDown, size: 20, color: Colors.red),
+                    GestureDetector(
+                      onTap: _isUpdating ? null : () => setDislike(),
+                      child: Opacity(
+                        opacity: _isUpdating ? 0.5 : 1.0,
+                        child: Icon(
+                          isdisliked
+                              ? Icons.thumb_down
+                              : Icons.thumb_down_outlined,
+                          size: 20,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Text('${dish['dislikes']}'),
                   ],
@@ -189,15 +413,7 @@ class _DishCardState extends State<DishCard> {
                     ),
                     suffixIcon: IconButton(
                       icon: const Icon(LucideIcons.send, size: 18),
-                      onPressed: () {
-                        final text = _commentController.text.trim();
-                        if (text.isNotEmpty) {
-                          setState(() {
-                            dish['comments'].add(text);
-                            _commentController.clear();
-                          });
-                        }
-                      },
+                      onPressed: _addComment,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -210,142 +426,6 @@ class _DishCardState extends State<DishCard> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class CommentSheet extends StatefulWidget {
-  final String dishName;
-  final String dishId;
-  const CommentSheet({super.key, required this.dishName, required this.dishId});
-
-  @override
-  State<CommentSheet> createState() => _CommentSheetState();
-}
-
-class _CommentSheetState extends State<CommentSheet> {
-  final TextEditingController _controller = TextEditingController();
-  List<Map<String, dynamic>> Allcomments = [];
-  final user = Supabase.instance.client.auth.currentUser;
-  bool _loading = true;
-  Future<void> _getComments() async {
-    try {
-      final response = await Supabase.instance.client
-          .from('comments')
-          .select('content')
-          .eq('dish_id', widget.dishId);
-
-      // Map to a list of comment + username strings or a structured model
-      setState(() {
-        Allcomments = List<Map<String, dynamic>>.from(response);
-        _loading = false;
-      });
-    } catch (error) {
-      print(error);
-    }
-  }
-
-  Future<void> _handleCommentSubmit() async {
-    try {
-      final response = await Supabase.instance.client.from('comments').insert({
-        'dish_id': widget.dishId,
-        'content': _controller.text,
-        'user_id': Supabase.instance.client.auth.currentUser?.id,
-      });
-      setState(() {
-        Allcomments.add({"content": _controller.text});
-        _controller.clear();
-      });
-    } catch (error) {
-      print(error);
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _getComments();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_loading) {
-      return Container(child: Center(child: CircularProgressIndicator()));
-    }
-    return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.3,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 5,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              Text(
-                'Commentaires sur ${widget.dishName}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child:
-                    Allcomments.isEmpty
-                        ? const Center(
-                          child: Text('Aucun commentaire pour le moment.'),
-                        )
-                        : ListView.builder(
-                          controller: scrollController,
-                          itemCount: Allcomments.length,
-                          itemBuilder:
-                              (context, index) => ListTile(
-                                leading: const CircleAvatar(
-                                  child: Icon(Icons.person),
-                                ),
-                                title: Text("ACHRAF"),
-                                subtitle: Text(Allcomments[index]["content"]),
-                              ),
-                        ),
-              ),
-              TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  hintText: "Ajouter un commentaire...",
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: _handleCommentSubmit,
-                  ),
-                ),
-                onSubmitted: (_) => _handleCommentSubmit(),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

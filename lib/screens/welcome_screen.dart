@@ -106,9 +106,11 @@ class WelcomeScreen extends StatelessWidget {
               // 🚀 CTA Button
               SizedBox(
                 width: double.infinity,
+                height: 50,
                 child: ElevatedButton.icon(
                   icon: const Icon(LucideIcons.arrowRight),
                   onPressed: () => context.go('/home'),
+
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -117,7 +119,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   label: const Text(
                     'Entrer',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                   ),
                 ),
               ),
