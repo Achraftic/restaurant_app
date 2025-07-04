@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:restaurant_app/config/constants.dart';
 import 'package:restaurant_app/widgets/dish_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -128,7 +127,7 @@ class _MenuScreenState extends State<MenuScreen> {
           const SizedBox(height: 12),
           _buildCategoryChips(context),
           const SizedBox(height: 12),
-        
+
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
