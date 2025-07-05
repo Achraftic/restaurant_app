@@ -56,7 +56,7 @@ class _SignInPageState extends State<SignInPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset("assets/images/logo.png", height: 250),
+              Image.asset("assets/images/logo.png", height: 300),
               const SizedBox(height: 0),
               Text(
                 'Connexion',

@@ -21,6 +21,6 @@ class AppColors {
 }
 
 class AppStrings {
-  static const appName = 'My App';
+  static const appName = 'Nessma';
   static const loginTitle = 'Welcome Back';
 }

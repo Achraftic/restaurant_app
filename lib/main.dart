@@ -6,9 +6,8 @@ import 'package:restaurant_app/providers/ThemeProvider.dart';
 import 'package:device_preview/device_preview.dart  ';
 import 'package:flutter/foundation.dart';
 import 'package:restaurant_app/widgets/theme_data.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // <-- Add this
+import 'package:supabase_flutter/supabase_flutter.dart'; 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-// Adjust the import to match your project
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +21,6 @@ void main() async {
     throw Exception("Missing Supabase configuration in .env");
   }
 
-  // Initialize Supabase
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
   runApp(

@@ -24,11 +24,8 @@ class SupabaseAuthNotifier extends ChangeNotifier {
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/welcome',
-
-  /// Listen to auth changes
   refreshListenable: SupabaseAuthNotifier(),
 
-  /// Redirect logic
   redirect: (context, state) {
     final session = Supabase.instance.client.auth.currentSession;
     final isLoggedIn = session != null;
@@ -44,12 +41,11 @@ final GoRouter appRouter = GoRouter(
       return '/login';
     }
 
-    // If already logged in, prevent going to login/signup/welcome
     if (isLoggedIn && isAuthRoute) {
       return '/home';
     }
 
-    return null; // allow navigation
+    return null;
   },
 
   routes: [
@@ -85,7 +81,6 @@ final GoRouter appRouter = GoRouter(
       ],
     ),
 
-    // Authentication and entry routes
     GoRoute(
       path: '/login',
       name: 'login',

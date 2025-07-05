@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/config/constants.dart';
+import 'package:restaurant_app/utils/services.dart';
 import 'package:restaurant_app/widgets/dish_card.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -30,23 +31,11 @@ class _MenuScreenState extends State<MenuScreen> {
     _loadData();
   }
 
- 
   Future<void> _loadData() async {
     setState(() => _loading = true);
 
     // Fetch dishes
-    final dishesResponse = await Supabase.instance.client
-        .from('dishes')
-        .select('*');
-    // Fetch favorites for current user
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    List<dynamic> favResponse = [];
-    if (userId != null) {
-      favResponse = await Supabase.instance.client
-          .from('favoris')
-          .select('dish_id')
-          .eq('user_id', userId);
-    }
+    final {'dishes': dishesResponse, 'favoris': favResponse} = await getData();
 
     if (mounted) {
       setState(() {
@@ -55,39 +44,6 @@ class _MenuScreenState extends State<MenuScreen> {
             favResponse.map((e) => e['dish_id'] as String).toSet();
         _loading = false;
       });
-    }
-  }
-
-  // Add dish to favorites
-  Future<void> addToFavoris(String dishId) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) {
-      throw Exception('User not authenticated');
-    }
-
-    final response = await Supabase.instance.client.from('favoris').insert({
-      'user_id': userId,
-      'dish_id': dishId,
-    });
-    // <--- Important!
-
-    if (response.error != null) {
-      throw Exception('Failed to add favorite: ${response.error!.message}');
-    }
-  }
-
-  // Remove dish from favorites
-  Future<void> removeFromFavoris(String dishId) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return;
-
-    final response = await Supabase.instance.client
-        .from('favoris')
-        .delete()
-        .match({'user_id': userId, 'dish_id': dishId});
-
-    if (response.error != null) {
-      throw Exception('Failed to remove favorite: ${response.error!.message}');
     }
   }
 

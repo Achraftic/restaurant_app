@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/utils/services.dart';
 import 'package:restaurant_app/widgets/dish_card.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 class FavorisScreen extends StatefulWidget {
   const FavorisScreen({super.key});
@@ -17,21 +18,12 @@ class _FavorisScreenState extends State<FavorisScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchFavoris();
+    _loadFavoris();
   }
 
-  Future<void> _fetchFavoris() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return;
-
-    final response = await Supabase.instance.client
-        .from('favoris')
-        .select(
-          'id, dish_id, dishes(id, name, image, price, description, likes, dislikes)',
-        )
-        .eq('user_id', userId);
-
-    final dishList = List<Map<String, dynamic>>.from(response);
+  Future<void> _loadFavoris() async {
+    final response = await getFavoris();
+    final dishList = List<Map<String, dynamic>>.from(response!);
 
     if (mounted) {
       setState(() {
@@ -43,16 +35,6 @@ class _FavorisScreenState extends State<FavorisScreen> {
     }
   }
 
-  Future<void> removeFromFavoris(String dishId) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return;
-
-    await Supabase.instance.client.from('favoris').delete().match({
-      'user_id': userId,
-      'dish_id': dishId,
-    });
-  }
-
   void toggleFavorite(String dishId) async {
     final isFav = favoriteDishIds.contains(dishId);
 
@@ -62,7 +44,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
         favoris.removeWhere((fav) => fav['dish_id'] == dishId);
       } else {
         favoriteDishIds.add(dishId);
-        // Optional: You can re-fetch to refresh UI
+       
       }
     });
 
@@ -88,7 +70,6 @@ class _FavorisScreenState extends State<FavorisScreen> {
                   final dishId = dish['id'].toString();
 
                   return DishCard(
-                    
                     dish: dish,
                     isFavorite: favoriteDishIds.contains(dishId),
                     onFavoriteToggle: () => toggleFavorite(dishId),
@@ -96,7 +77,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
                 },
               ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _fetchFavoris,
+        onPressed: _loadFavoris,
         child: const Icon(Icons.refresh),
       ),
     );

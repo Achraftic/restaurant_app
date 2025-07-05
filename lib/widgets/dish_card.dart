@@ -3,6 +3,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:restaurant_app/widgets/comment_sheet.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../utils/services.dart';
+
 class DishCard extends StatefulWidget {
   final Map<String, dynamic> dish;
   final bool isFavorite;
@@ -25,40 +27,6 @@ class _DishCardState extends State<DishCard> {
   bool isliked = false;
   bool isdisliked = false;
   bool _isUpdating = false; // Add loading state
-
-  Future<void> _handleLike(String dishId, bool isLiked) async {
-    try {
-      await Supabase.instance.client
-          .from('dishes')
-          .update({
-            'likes':
-                isLiked ? widget.dish['likes'] + 1 : widget.dish['likes'] - 1,
-          })
-          .eq('id', dishId);
-    } catch (e) {
-      // Handle the error appropriately
-      print('Error updating like status: $e');
-      rethrow; // Re-throw to handle in setLike()
-    }
-  }
-
-  Future<void> _handleDislike(String dishId, bool isDisliked) async {
-    try {
-      await Supabase.instance.client
-          .from('dishes')
-          .update({
-            'dislikes':
-                isDisliked
-                    ? widget.dish['dislikes'] + 1
-                    : widget.dish['dislikes'] - 1,
-          })
-          .eq('id', dishId);
-    } catch (e) {
-      // Handle the error appropriately
-      print('Error updating dislike status: $e');
-      rethrow; // Re-throw to handle in setDislike()
-    }
-  }
 
   Future<void> setLike() async {
     if (_isUpdating) return; // Prevent multiple simultaneous requests
@@ -96,12 +64,12 @@ class _DishCardState extends State<DishCard> {
       if (originalIsDisliked && !isdisliked) {
         // If we're switching from dislike to like, update both
         await Future.wait([
-          _handleLike(widget.dish['id'], isliked),
-          _handleDislike(widget.dish['id'], false),
+          handleLike(widget.dish['id'], isliked, widget),
+          handleDislike(widget.dish['id'], false, widget),
         ]);
       } else {
         // Just update likes
-        await _handleLike(widget.dish['id'], isliked);
+        await handleLike(widget.dish['id'], isliked, widget);
       }
     } catch (e) {
       // Rollback UI changes if database update fails
@@ -163,12 +131,12 @@ class _DishCardState extends State<DishCard> {
       if (originalIsLiked && !isliked) {
         // If we're switching from like to dislike, update both
         await Future.wait([
-          _handleDislike(widget.dish['id'], isdisliked),
-          _handleLike(widget.dish['id'], false),
+          handleDislike(widget.dish['id'], isdisliked, widget),
+          handleLike(widget.dish['id'], false, widget),
         ]);
       } else {
         // Just update dislikes
-        await _handleDislike(widget.dish['id'], isdisliked);
+        await handleDislike(widget.dish['id'], isdisliked, widget);
       }
     } catch (e) {
       // Rollback UI changes if database update fails
@@ -305,7 +273,8 @@ class _DishCardState extends State<DishCard> {
                       widget.isFavorite
                           ? Icons.favorite
                           : Icons.favorite_border,
-                      color: Colors.white,
+                      color:
+                          widget.isFavorite ? Colors.redAccent : Colors.white,
                     ),
                   ),
                 ),
