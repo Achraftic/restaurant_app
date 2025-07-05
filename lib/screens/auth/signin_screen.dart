@@ -62,6 +62,7 @@ class _SignInPageState extends State<SignInPage> {
                 'Connexion',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
+                  fontSize: 36,
                 ),
               ),
               const SizedBox(height: 24),

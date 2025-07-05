@@ -65,7 +65,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 "Créer un compte",
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 40,
+                  fontSize: 36,
                 ),
               ),
               const SizedBox(height: 24),
