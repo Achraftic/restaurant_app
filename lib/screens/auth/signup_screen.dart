@@ -56,13 +56,14 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset("assets/images/logo.png", height: 300),
+              Image.asset("assets/images/logo.png", height: 200),
+              const SizedBox(height: 40),
 
               Text(
                 "Créer un compte",
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 36,
+                  fontSize: 30,
                 ),
               ),
               const SizedBox(height: 24),
@@ -81,6 +82,12 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _fullNameController,
+                style: TextStyle(
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                ),
                 decoration: const InputDecoration(
                   labelText: 'name',
                   border: OutlineInputBorder(

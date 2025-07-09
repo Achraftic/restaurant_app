@@ -53,13 +53,13 @@ class _SignInPageState extends State<SignInPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset("assets/images/logo.png", height: 300),
-              const SizedBox(height: 0),
+              Image.asset("assets/images/logo.png", height: 200),
+              const SizedBox(height: 40),
               Text(
                 'Connexion',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 36,
+                  fontSize: 30,
                 ),
               ),
               const SizedBox(height: 24),

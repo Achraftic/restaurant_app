@@ -129,7 +129,7 @@ class _CommentSheetState extends State<CommentSheet> {
                                     color: Colors.red,
                                   ),
                                   onPressed: () async {
-                                  await deleteComment(
+                                    await deleteComment(
                                       Allcomments[index]["id"],
                                     );
                                     setState(() {
@@ -142,9 +142,11 @@ class _CommentSheetState extends State<CommentSheet> {
               ),
               TextField(
                 controller: _controller,
+                style: const TextStyle(
+                  color: Colors.black,
+                ), // <-- Hardcoded text color
                 decoration: InputDecoration(
                   hintText: "Ajouter un commentaire...",
-
                   suffixIcon: IconButton(
                     color: Colors.black,
                     icon: const Icon(Icons.send),

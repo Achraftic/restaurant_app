@@ -6,7 +6,7 @@ import 'package:restaurant_app/providers/ThemeProvider.dart';
 import 'package:device_preview/device_preview.dart  ';
 import 'package:flutter/foundation.dart';
 import 'package:restaurant_app/widgets/theme_data.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; 
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {

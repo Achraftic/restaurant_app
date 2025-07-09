@@ -30,21 +30,17 @@ class WelcomeScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Spacer(),
-
-          
               CircleAvatar(
                 radius: 120,
                 backgroundImage: const AssetImage('assets/images/logo.png'),
                 backgroundColor: theme.colorScheme.surfaceVariant,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 22),
 
-            
               Text(
                 'Le Gourmet Bistro',
                 style: textTheme.headlineMedium?.copyWith(
@@ -55,7 +51,6 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-           
               Text(
                 'Un lieu chaleureux pour savourer des plats faits maison avec des ingrédients frais.',
                 style: textTheme.bodyLarge?.copyWith(
@@ -66,7 +61,6 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-           
               Card(
                 elevation: 2,
                 shadowColor: Colors.black.withOpacity(0.2),
@@ -103,7 +97,6 @@ class WelcomeScreen extends StatelessWidget {
 
               const Spacer(),
 
-       
               SizedBox(
                 width: double.infinity,
                 height: 50,
