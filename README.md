@@ -6,33 +6,33 @@
 
 ---
 
-## ✨ Features
+##  Features
 
-- 🔐 **Authentification**
+-  **Authentification**
   - Inscription et connexion sécurisées
   - Déconnexion (Logout)
 
-- 📜 **Voir le menu**
+-  **Voir le menu**
   - Liste des plats avec images, description et prix
 
-- ⭐ **Ajouter aux favoris**
+-  **Ajouter aux favoris**
   - Ajouter ou retirer un plat des favoris
   - Liste personnelle des plats favoris
 
-- 💬 **Ajouter un commentaire**
+-  **Ajouter un commentaire**
   - Laisser un avis sur chaque plat
   - Voir les commentaires des autres utilisateurs
 
-- 👍👎 **Likes & Dislikes**
+-  **Likes & Dislikes**
   - Liker ou disliker un plat
   - Affichage du nombre total de likes et dislikes
 
-- 🌙 **Mode sombre et mode clair**
+-  **Mode sombre et mode clair**
   - Interface adaptée aux préférences de l’utilisateur
 
 ---
 
-## ⚙️ Stack technique
+##  Stack technique
 
 - **Frontend** : Flutter
 - **Backend** : Supabase (PostgreSQL, Auth, Storage, API REST)
@@ -90,7 +90,7 @@ flutter run
 
 ---
 
-## 🗂️ Structure du projet
+##  Structure du projet
 
 
 lib/
@@ -111,7 +111,7 @@ lib/
 
 ---
 
-## 💬 Fonctionnalités supplémentaires
+##  Fonctionnalités supplémentaires
 
 * Dark mode & light mode supportés
 * Utilisation du `Provider` ou `Riverpod` pour la gestion d’état (optionnel)
@@ -119,30 +119,10 @@ lib/
 
 ---
 
-## 🛡️ Sécurité
+##  Sécurité
 
 * Authentification sécurisée via Supabase
 * Tokens JWT gérés côté client
 * Droits d'accès configurés dans Supabase (Row Level Security)
-
----
-
-## 🤝 Contributions
-
-Les contributions sont les bienvenues !
-Créez une *issue* ou ouvrez une *pull request* pour proposer des améliorations ou corriger des bugs.
-
----
-
-## 📄 License
-
-Ce projet est open-source sous licence [MIT](LICENSE).
-
----
-
-## 📬 Contact
-
-Pour toute question ou suggestion :
-**[ticachraf@exemple.com](mailto:tixachraf@exemple.com)**
 
 

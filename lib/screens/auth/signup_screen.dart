@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:restaurant_app/utils/services.dart';
+
 import 'package:go_router/go_router.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -27,11 +28,7 @@ class _SignUpPageState extends State<SignUpPage> {
       final password = _passwordController.text.trim();
       final full_name = _fullNameController.text.trim();
 
-      final response = await Supabase.instance.client.auth.signUp(
-        email: email,
-        password: password,
-        data: {'full_name': full_name},
-      );
+      final response = await SignUp(full_name, email, password, context);
 
       if (response.user != null) {
         ScaffoldMessenger.of(context).showSnackBar(

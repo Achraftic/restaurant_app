@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import 'package:restaurant_app/utils/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CommentSheet extends StatefulWidget {
@@ -17,12 +18,8 @@ class _CommentSheetState extends State<CommentSheet> {
   bool _loading = true;
   Future<void> _getComments() async {
     try {
-      final response = await Supabase.instance.client
-          .from('comments')
-          .select('content')
-          .eq('dish_id', widget.dishId);
+      final response = await getComments(widget.dishId);
 
-      // Map to a list of comment + username strings or a structured model
       setState(() {
         Allcomments = List<Map<String, dynamic>>.from(response);
         _loading = false;
@@ -34,11 +31,10 @@ class _CommentSheetState extends State<CommentSheet> {
 
   Future<void> _handleCommentSubmit() async {
     try {
-      final response = await Supabase.instance.client.from('comments').insert({
-        'dish_id': widget.dishId,
-        'content': _controller.text,
-        'user_id': Supabase.instance.client.auth.currentUser?.id,
-      });
+      final response = await AddCommentToSpecifiqueDish(
+        _controller.text,
+        widget.dishId,
+      );
       setState(() {
         Allcomments.add({"content": _controller.text});
         _controller.clear();
@@ -104,11 +100,15 @@ class _CommentSheetState extends State<CommentSheet> {
                 child:
                     Allcomments.isEmpty
                         ? const Center(
-                          child: Text('Aucun commentaire pour le moment.'),
+                          child: Text(
+                            'Aucun commentaire pour le moment.',
+                            style: TextStyle(color: Colors.black87),
+                          ),
                         )
                         : ListView.builder(
                           controller: scrollController,
                           itemCount: Allcomments.length,
+
                           itemBuilder:
                               (context, index) => ListTile(
                                 leading: const CircleAvatar(
@@ -118,8 +118,25 @@ class _CommentSheetState extends State<CommentSheet> {
                                   "ACHRAF",
                                   style: TextStyle(color: Colors.black87),
                                 ),
-                                subtitle: Text(Allcomments[index]["content"] ,
-                                style: TextStyle(color: Colors.black87),),
+                                subtitle: Text(
+                                  Allcomments[index]["content"],
+                                  style: TextStyle(color: Colors.black87),
+                                ),
+
+                                trailing: IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () async {
+                                  await deleteComment(
+                                      Allcomments[index]["id"],
+                                    );
+                                    setState(() {
+                                      Allcomments.removeAt(index);
+                                    });
+                                  },
+                                ),
                               ),
                         ),
               ),
@@ -127,7 +144,9 @@ class _CommentSheetState extends State<CommentSheet> {
                 controller: _controller,
                 decoration: InputDecoration(
                   hintText: "Ajouter un commentaire...",
+
                   suffixIcon: IconButton(
+                    color: Colors.black,
                     icon: const Icon(Icons.send),
                     onPressed: _handleCommentSubmit,
                   ),

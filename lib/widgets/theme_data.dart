@@ -57,8 +57,9 @@ final ThemeData darkThemeData = ThemeData(
     ),
   ),
   textTheme: const TextTheme(
-    bodyMedium: TextStyle(color: AppColors.textPrimaryDark),
-    bodyLarge: TextStyle(color: AppColors.textPrimaryDark),
+    bodyMedium: TextStyle(color: AppColors.onPrimaryDark),
+    bodySmall: TextStyle(color: AppColors.onPrimaryDark),
+    bodyLarge: TextStyle(color: AppColors.surfaceDark),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(

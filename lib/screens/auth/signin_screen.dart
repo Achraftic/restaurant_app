@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:restaurant_app/utils/services.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -25,10 +25,7 @@ class _SignInPageState extends State<SignInPage> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
-      final response = await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      final response = await SignIn(email, password, context);
 
       if (response.user != null) {
         context.go('/home');

@@ -23,7 +23,6 @@ class MyDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
-          // Drawer Header with user info
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),

@@ -36,7 +36,7 @@ class WelcomeScreen extends StatelessWidget {
             children: [
               const Spacer(),
 
-              // 🖼️ Logo
+          
               CircleAvatar(
                 radius: 120,
                 backgroundImage: const AssetImage('assets/images/logo.png'),
@@ -44,7 +44,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // 🏪 Name
+            
               Text(
                 'Le Gourmet Bistro',
                 style: textTheme.headlineMedium?.copyWith(
@@ -55,7 +55,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // 📝 Description
+           
               Text(
                 'Un lieu chaleureux pour savourer des plats faits maison avec des ingrédients frais.',
                 style: textTheme.bodyLarge?.copyWith(
@@ -66,7 +66,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // Info rows
+           
               Card(
                 elevation: 2,
                 shadowColor: Colors.black.withOpacity(0.2),
@@ -103,7 +103,7 @@ class WelcomeScreen extends StatelessWidget {
 
               const Spacer(),
 
-              // 🚀 CTA Button
+       
               SizedBox(
                 width: double.infinity,
                 height: 50,

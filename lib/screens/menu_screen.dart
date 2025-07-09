@@ -3,7 +3,6 @@ import 'package:restaurant_app/config/constants.dart';
 import 'package:restaurant_app/utils/services.dart';
 import 'package:restaurant_app/widgets/dish_card.dart';
 
-
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
@@ -14,8 +13,8 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> {
   String selectedCategory = 'Plats principaux';
   final List<String> categories = [
-    'Entrées',
     'Plats principaux',
+    'Entrées',
     'Desserts',
     'Boissons',
   ];
@@ -23,7 +22,7 @@ class _MenuScreenState extends State<MenuScreen> {
   List<Map<String, dynamic>> allDishes = [];
   bool _loading = true;
 
-  Set<String> favoriteDishIds = {}; // Store favorite dish IDs for current user
+  Set<String> favoriteDishIds = {};
 
   @override
   void initState() {
@@ -120,11 +119,14 @@ class _MenuScreenState extends State<MenuScreen> {
           return Padding(
             padding: const EdgeInsets.only(right: 12),
             child: ChoiceChip(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               label: Text(category),
               selected: isSelected,
               onSelected: (_) => setState(() => selectedCategory = category),
               selectedColor: AppColors.primary,
-              backgroundColor: theme.colorScheme.secondary.withOpacity(0.6),
+              backgroundColor: theme.colorScheme.secondary.withOpacity(0.4),
               labelStyle: const TextStyle(color: Colors.white),
             ),
           );

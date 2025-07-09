@@ -6,8 +6,6 @@ class FoodCard extends StatelessWidget {
   final FoodItem dish;
   final double elevation;
   final Color priceColor;
-
-  /// Optional: provide a background color override, otherwise it auto-selects based on theme.
   final Color? backgroundColor;
 
   const FoodCard({

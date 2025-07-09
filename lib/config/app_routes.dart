@@ -13,7 +13,6 @@ import '../screens/profile_screen.dart';
 import '../screens/welcome_screen.dart';
 import '../widgets/bottom_nav_shell.dart';
 
-/// Auth state listener to trigger router refresh
 class SupabaseAuthNotifier extends ChangeNotifier {
   SupabaseAuthNotifier() {
     Supabase.instance.client.auth.onAuthStateChange.listen((_) {
@@ -36,7 +35,7 @@ final GoRouter appRouter = GoRouter(
         location.startsWith('/signUp') ||
         location.startsWith('/welcome');
 
-    // If not logged in, redirect to login
+
     if (!isLoggedIn && !isAuthRoute) {
       return '/login';
     }
@@ -52,6 +51,7 @@ final GoRouter appRouter = GoRouter(
     // Shell route for bottom navigation bar
     ShellRoute(
       builder: (context, state, child) => BottomNavShell(child: child),
+      
       routes: [
         GoRoute(
           path: '/home',

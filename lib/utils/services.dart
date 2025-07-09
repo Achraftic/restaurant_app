@@ -12,7 +12,6 @@ Future<void> addToFavoris(String dishId) async {
     'user_id': userId,
     'dish_id': dishId,
   });
-  // <--- Important!
 
   if (response.error != null) {
     throw Exception('Failed to add favorite: ${response.error!.message}');
@@ -65,45 +64,104 @@ Future<PostgrestList?> getFavoris() async {
   return response;
 }
 
+Future<void> logout(BuildContext context) async {
+  await Supabase.instance.client.auth.signOut();
 
- Future<void> logout(BuildContext context) async {
-      await Supabase.instance.client.auth.signOut();
-
-      // Optionally redirect to login screen
-      if (context.mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-      }
-    }
-Future<void> handleLike(String dishId, bool isLiked , DishCard widget) async {
-    try {
-      await Supabase.instance.client
-          .from('dishes')
-          .update({
-            'likes':
-                isLiked ? widget.dish['likes'] + 1 : widget.dish['likes'] - 1,
-          })
-          .eq('id', dishId);
-    } catch (e) {
-      // Handle the error appropriately
-      print('Error updating like status: $e');
-      rethrow; // Re-throw to handle in setLike()
-    }
+  if (context.mounted) {
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
+}
 
-  Future<void> handleDislike(String dishId, bool isDisliked,DishCard widget) async {
-    try {
-      await Supabase.instance.client
-          .from('dishes')
-          .update({
-            'dislikes':
-                isDisliked
-                    ? widget.dish['dislikes'] + 1
-                    : widget.dish['dislikes'] - 1,
-          })
-          .eq('id', dishId);
-    } catch (e) {
-      // Handle the error appropriately
-      print('Error updating dislike status: $e');
-      rethrow; // Re-throw to handle in setDislike()
-    }
+Future<AuthResponse> SignIn(
+  String email,
+  String password,
+  BuildContext context,
+) async {
+  final response = await Supabase.instance.client.auth.signInWithPassword(
+    email: email,
+    password: password,
+  );
+
+  return response;
+}
+
+Future<AuthResponse> SignUp(
+  String email,
+  String password,
+  String full_name,
+  BuildContext context,
+) async {
+  final response = await Supabase.instance.client.auth.signUp(
+    email: email,
+    password: password,
+    data: {'full_name': full_name},
+  );
+
+  return response;
+}
+
+Future<void> handleLike(String dishId, bool isLiked, DishCard widget) async {
+  try {
+    await Supabase.instance.client
+        .from('dishes')
+        .update({
+          'likes':
+              isLiked ? widget.dish['likes'] + 1 : widget.dish['likes'] - 1,
+        })
+        .eq('id', dishId);
+  } catch (e) {
+    // Handle the error appropriately
+    print('Error updating like status: $e');
+    rethrow;
   }
+}
+
+Future<void> handleDislike(
+  String dishId,
+  bool isDisliked,
+  DishCard widget,
+) async {
+  try {
+    await Supabase.instance.client
+        .from('dishes')
+        .update({
+          'dislikes':
+              isDisliked
+                  ? widget.dish['dislikes'] + 1
+                  : widget.dish['dislikes'] - 1,
+        })
+        .eq('id', dishId);
+  } catch (e) {
+    // Handle the error appropriately
+    print('Error updating dislike status: $e');
+    rethrow;
+  }
+}
+
+Future<PostgrestList> getComments(String dishId) async {
+  final response = await Supabase.instance.client
+      .from('comments')
+      .select('content,id')
+      .eq('dish_id', dishId);
+
+  return response;
+}
+
+Future<dynamic> AddCommentToSpecifiqueDish(
+  String comment,
+  String dishId,
+) async {
+  final response = await Supabase.instance.client.from('comments').insert({
+    'dish_id': dishId,
+    'content': comment,
+    'user_id': Supabase.instance.client.auth.currentUser?.id,
+  });
+
+  return response;
+}
+
+Future<void> deleteComment(String commentId) async {
+  await Supabase.instance.client.from('comments').delete().match({
+    'id': commentId,
+  });
+}
